@@ -7,9 +7,14 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.speech.RecognitionService
+import android.speech.RecognizerIntent
+import android.speech.tts.TextToSpeech
+import android.speech.tts.TextToSpeech.OnInitListener
 import android.support.v4.content.ContextCompat.startActivity
 import android.util.Log
 import android.view.View
+import android.view.animation.TranslateAnimation
 import android.widget.*
 import com.facebook.stetho.Stetho
 import com.google.gson.Gson
@@ -22,6 +27,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     lateinit var dao: WordDAO
@@ -31,6 +37,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var s1: Spinner
     private lateinit var s2: Spinner
     val spinnerData = ArrayList<String>()
+
+     var mTTS : TextToSpeech? = null
 
     private lateinit var mHandler: Handler
 
@@ -119,6 +127,51 @@ class MainActivity : AppCompatActivity() {
 
         camera.setOnClickListener{ goToCamera() }
 
+        mTTS = TextToSpeech(this@MainActivity, OnInitListener(function = fun(it: Int) {
+            if(it == TextToSpeech.SUCCESS)
+            {
+                val result = mTTS!!.setLanguage(Locale.ENGLISH)
+
+                if(result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED)
+                {
+                    Toast.makeText(this@MainActivity, "Language not supported", Toast.LENGTH_SHORT).show()
+                }
+                else
+                {
+                    ibMuteEN.setEnabled(true)
+                }
+            }
+            else
+            {
+                Toast.makeText(this@MainActivity, "Initialization failed", Toast.LENGTH_SHORT).show()
+            }
+
+        }))
+
+        ibMuteEN.setOnClickListener {
+            val str  = edEnglish.text.toString()
+
+//            mTTS!!.setSpeechRate(100f)
+//            mTTS!!.setPitch(10f)
+
+            mTTS!!.speak(str, TextToSpeech.QUEUE_FLUSH,null)
+        }
+
+        ibMuteVN.setOnClickListener {
+            Toast.makeText(this@MainActivity, "VN mute!", Toast.LENGTH_SHORT).show()
+
+        }
+
+    }
+
+    override fun onDestroy() {
+
+        if (mTTS != null)
+        {
+            mTTS!!.stop()
+            mTTS!!.shutdown()
+        }
+        super.onDestroy()
     }
 
     private fun wordAvailable(word: Word): Boolean {
