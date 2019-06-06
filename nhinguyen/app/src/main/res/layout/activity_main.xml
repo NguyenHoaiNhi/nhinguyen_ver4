@@ -23,13 +23,14 @@
                 android:layout_height="wrap_content">
 
         </Spinner>
-        <ImageView android:id="@+id/translate"
+        <ImageView android:id="@+id/ivSwitch"
                    android:layout_width="50dp"
                    android:layout_height="40dp"
                    android:src="@drawable/exchange"
 
                    android:layout_centerHorizontal="true"
-                   android:layout_marginTop="5dp" android:layout_marginBottom="5dp"/>
+                   android:layout_marginTop="5dp" android:layout_marginBottom="5dp"
+                   android:layout_alignParentTop="true"/>
         <Spinner android:layout_width="140dp"
                  android:id="@+id/spinner2"
                  android:layout_alignParentEnd="true"
@@ -89,18 +90,18 @@
     >
 
 
-        <ImageView android:id="@+id/Save_screen"
+        <ImageView android:id="@+id/ivSaveScreen"
                    android:layout_width="50dp"
                    android:layout_height="40dp"
 
                    android:src="@drawable/save1"
-                   android:layout_toLeftOf="@id/camera"
+                   android:layout_toLeftOf="@id/ivCamera"
 
                    android:layout_marginTop="10dp"
                    android:layout_marginBottom="2dp"
                    android:layout_marginRight="0dp" android:layout_alignParentTop="true"/>
 
-        <ImageView android:id="@+id/camera"
+        <ImageView android:id="@+id/ivCamera"
                    android:layout_width="50dp"
                    android:layout_height="40dp"
                    android:layout_centerHorizontal="true"
@@ -116,7 +117,7 @@
                 android:text="Camera"
                 android:textColor="#34495E"
                 android:id="@id/text2"
-                android:layout_below="@id/camera"
+                android:layout_below="@id/ivCamera"
                 android:textSize="18dp"
                 android:layout_centerHorizontal="true"
                 android:layout_marginLeft="74dp"
@@ -130,7 +131,7 @@
                 android:background="@drawable/translate"
                 android:textColor="#FFFFFF"
                 android:text="TRANSLATE"
-                android:layout_toRightOf="@id/camera"
+                android:layout_toRightOf="@id/ivCamera"
 
                 android:id="@+id/btTranslate"
                 android:layout_marginBottom="10dp"
@@ -161,7 +162,7 @@
 
                 android:layout_marginLeft="10dp" android:layout_marginTop="10dp"/>
 
-        <ImageView android:id="@+id/save"
+        <ImageView android:id="@+id/ivSave"
                    android:layout_width="30dp"
                    android:layout_height="31dp"
                    android:src="@drawable/save"

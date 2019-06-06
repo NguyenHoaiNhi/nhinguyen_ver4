@@ -3,6 +3,7 @@ package com.nhinguyen.translate
 
 import android.arch.persistence.room.Room
 import android.content.Intent
+import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -29,32 +30,41 @@ import org.json.JSONObject
 import java.io.IOException
 import java.util.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
+
+    // Database handler
     lateinit var dao: WordDAO
     var words: ArrayList<Word> = ArrayList()
     var word_object = Word()
 
+    // Spinner handler
     private lateinit var s1: Spinner
     private lateinit var s2: Spinner
     val spinnerData = ArrayList<String>()
 
-     var mTextToSpeech : TextToSpeech? = null
+    // Text to Speech
+    var mTextToSpeech : TextToSpeech? = null
+    var mResult = 0
+    var mLocale = Locale("en")
 
-    private lateinit var mHandler: Handler
+    val mHandler: Handler = Handler()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         Stetho.initializeWithDefaults(this)
+
+        // Init database
         initRoomDatabase()
 
         // Get all data from Room
         getWords()
 
-        setupSpiner()
-        mHandler = Handler()
+        // Setup Spinner
+        setupSpinner()
 
-        save.setOnClickListener{
+        // Save new word button
+        ivSave.setOnClickListener{
 
             if(edEnglish.text.toString() != "" && edVietnam.text.toString() != "")
             {
@@ -79,13 +89,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        translate.setOnClickListener{
+        // Switch language button
+        ivSwitch.setOnClickListener{
             var position1 = s2.selectedItemPosition
             var position2 = s1.selectedItemPosition
             s1.setSelection(position1)
             s2.setSelection(position2)
         }
 
+        // Translate button
         btTranslate.setOnClickListener {
             var language1 :String= when( s1.selectedItem.toString()){
                 "English" -> "en"
@@ -119,61 +131,71 @@ class MainActivity : AppCompatActivity() {
             translation(language)
         }
 
-        Save_screen.setOnClickListener{
+        // Open save screen button
+        ivSaveScreen.setOnClickListener{
             val intent = Intent(this@MainActivity, SaveActivity::class.java)
 
             startActivity(intent)
         }
 
-        camera.setOnClickListener{ goToCamera() }
+        // Camera button
+        ivCamera.setOnClickListener{ goToCamera() }
 
-        val locale = Locale("vi")
-        Locale.setDefault(locale)
-        val config = baseContext.resources.configuration
-        config.locale = locale
-        baseContext.resources.updateConfiguration(
-            config,
-            baseContext.resources.displayMetrics
-        )
+        // Text to Speech handler
+        mTextToSpeech = TextToSpeech(this,this)
 
-        mTextToSpeech = TextToSpeech(this@MainActivity,
-            OnInitListener(function = fun(it: Int) {
-            if(it == TextToSpeech.SUCCESS)
-            {
-                val result = mTextToSpeech!!.setLanguage(locale)
+        // Disable Mute button when start UI
+        ibMuteVN.isEnabled = false
+        ibMuteEN.isEnabled = false
 
-                if(result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED)
-                {
-                    Toast.makeText(this@MainActivity, "Language not supported", Toast.LENGTH_SHORT).show()
-                }
-                else
-                {
-                    ibMuteEN.setEnabled(true)
-                }
-            }
-            else
-            {
-                Toast.makeText(this@MainActivity, "Initialization failed", Toast.LENGTH_SHORT).show()
-            }
-
-        })
-        )
-
+        // Mute Language 1
         ibMuteEN.setOnClickListener {
             val str  = edEnglish.text.toString()
 
-            mTextToSpeech!!.speak(str, TextToSpeech.QUEUE_FLUSH,null)
+            mLocale = Locale("en")
+            Locale.setDefault(mLocale)
+
+            mResult = mTextToSpeech!!.setLanguage(mLocale)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            {
+                mTextToSpeech!!.speak(str, TextToSpeech.QUEUE_FLUSH,null, null)
+            }
         }
 
+        // Mute Language 2
         ibMuteVN.setOnClickListener {
-            Toast.makeText(this@MainActivity, "VN mute!", Toast.LENGTH_SHORT).show()
+            val str  = edVietnam.text.toString()
 
+            mLocale = Locale("vi")
+            Locale.setDefault(mLocale)
+
+            mResult = mTextToSpeech!!.setLanguage(mLocale)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            {
+                mTextToSpeech!!.speak(str, TextToSpeech.QUEUE_FLUSH,null, null)
+            }
         }
+    }
 
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS)
+        {
+            // Set locale
+            Locale.setDefault(mLocale) // default is english ("en")
+            mResult = mTextToSpeech!!.setLanguage(mLocale)
+
+            if (mResult != TextToSpeech.LANG_MISSING_DATA || mResult != TextToSpeech.LANG_NOT_SUPPORTED)
+            {
+                // Enable mute button after init
+                ibMuteEN.isEnabled = true
+                ibMuteVN.isEnabled = true
+            }
+        }
     }
 
     override fun onDestroy() {
-
         if (mTextToSpeech != null)
         {
             mTextToSpeech!!.stop()
@@ -194,7 +216,8 @@ class MainActivity : AppCompatActivity() {
 
         for (i in 0 until size)
         {
-            if(words[i].content_language1 == word.content_language1 && words[i].content_language2 == word.content_language2)
+            if(words[i].content_language1 == word.content_language1
+                && words[i].content_language2 == word.content_language2)
             {
                 return true
             }
@@ -221,6 +244,7 @@ class MainActivity : AppCompatActivity() {
         Log.i("Link: ", link.toString())
         okhttp(link)
     }
+
     fun okhttp( a: String){
         Log.i("Okhttp: ", "Haha")
         val client = OkHttpClient()
@@ -255,7 +279,8 @@ class MainActivity : AppCompatActivity() {
             })
 
     }
-    private fun setupSpiner(){
+
+    private fun setupSpinner(){
         spinnerData.add("English")
         spinnerData.add("Vietnamese")
         spinnerData.add("Chinese")
@@ -288,6 +313,7 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+
     private fun initRoomDatabase(){
         val db  = Room.databaseBuilder(
             applicationContext,
@@ -296,6 +322,4 @@ class MainActivity : AppCompatActivity() {
             .build()
          dao = db.wordDAO()
     }
-
-
 }
