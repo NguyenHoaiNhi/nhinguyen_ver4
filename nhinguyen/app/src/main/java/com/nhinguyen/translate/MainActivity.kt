@@ -40,12 +40,16 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     // Spinner handler
     private lateinit var s1: Spinner
     private lateinit var s2: Spinner
-    val spinnerData = ArrayList<String>()
+
 
     // Text to Speech
     var mTextToSpeech : TextToSpeech? = null
     var mResult = 0
     var mLocale = Locale("en")
+
+    // Language handler
+    var mLanguage1 = "en"
+    var mLanguage2 = "vi"
 
     val mHandler: Handler = Handler()
 
@@ -99,7 +103,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         // Translate button
         btTranslate.setOnClickListener {
-            var language1 :String= when( s1.selectedItem.toString()){
+            mLanguage1 = when( s1.selectedItem.toString()){
                 "English" -> "en"
                 "Vietnamese" -> "vi"
                 "Chinese"-> "zh"
@@ -113,7 +117,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     "Nothing"
                 }
             }
-            var language2 :String= when( s2.selectedItem.toString()){
+            mLanguage2 = when( s2.selectedItem.toString()){
                 "English" -> "en"
                 "Vietnamese" -> "vi"
                 "Chinese"-> "zh"
@@ -127,11 +131,11 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     "Nothing"
                 }
             }
-            var language = language1+ "-" + language2
+            var language = mLanguage1 + "-" + mLanguage2
             translation(language)
         }
 
-        // Open save screen button
+        // Open save screen
         ivSaveScreen.setOnClickListener{
             val intent = Intent(this@MainActivity, SaveActivity::class.java)
 
@@ -152,9 +156,11 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         ibMuteEN.setOnClickListener {
             val str  = edEnglish.text.toString()
 
-            mLocale = Locale("en")
+            // Get type of language
+            mLocale = Locale(mLanguage1)
             Locale.setDefault(mLocale)
 
+            // Set language
             mResult = mTextToSpeech!!.setLanguage(mLocale)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
@@ -167,9 +173,11 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         ibMuteVN.setOnClickListener {
             val str  = edVietnam.text.toString()
 
-            mLocale = Locale("vi")
+            // Get type of language
+            mLocale = Locale(mLanguage2)
             Locale.setDefault(mLocale)
 
+            // Set language
             mResult = mTextToSpeech!!.setLanguage(mLocale)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
@@ -281,6 +289,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun setupSpinner(){
+        val spinnerData = ArrayList<String>()
+
         spinnerData.add("English")
         spinnerData.add("Vietnamese")
         spinnerData.add("Chinese")
@@ -290,10 +300,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         spinnerData.add("French")
         spinnerData.add("Italian")
         spinnerData.add("Irish")
+
         s1 = findViewById(R.id.spinner1)
-        s2 = findViewById(R.id.spinner2)
         s1.adapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,spinnerData)
-        s2.adapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,spinnerData)
         s1.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                 tvEnglish.text = s1.getItemAtPosition(p2).toString()
@@ -301,17 +310,18 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
             }
-
         }
+
+        s2 = findViewById(R.id.spinner2)
+        s2.adapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,spinnerData)
         s2.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                tvVietnamese.text = s2.getItemAtPosition(p2).toString()
+                    tvVietnamese.text = s2.getItemAtPosition(p2).toString()
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
             }
         }
-
     }
 
     private fun initRoomDatabase(){
