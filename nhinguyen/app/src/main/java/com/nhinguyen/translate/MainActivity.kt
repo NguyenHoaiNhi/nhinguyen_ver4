@@ -10,10 +10,7 @@ import android.os.Looper
 import android.support.v4.content.ContextCompat.startActivity
 import android.util.Log
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.Spinner
-import android.widget.TextView
+import android.widget.*
 import com.facebook.stetho.Stetho
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -28,36 +25,53 @@ import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
     lateinit var dao: WordDAO
+    var words: ArrayList<Word> = ArrayList()
     var word_object = Word()
+
     private lateinit var s1: Spinner
     private lateinit var s2: Spinner
     val spinnerData = ArrayList<String>()
+
     private lateinit var mHandler: Handler
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         Stetho.initializeWithDefaults(this)
         initRoomDatabase()
-       // getWord_save()
+
+        // Get all data from Room
+        getWords()
+
         setupSpiner()
         mHandler = Handler()
-        save.setOnClickListener{
-            word_object.language1 =tvEnglish.text.toString()
-            word_object.content_language1 = edEnglish.text.toString()
-            Log.i("edEnglish: ", word_object.content_language1.toString())
-            word_object.language2 = tvVietnamese.text.toString()
-            word_object.content_language2 = edVietnam.text.toString()
-            Log.i("edVietnamese", word_object.content_language2.toString())
-            dao.insert(word_object)
 
-            Log.i("Haha", "Save")
+        save.setOnClickListener{
+
+            if(edEnglish.text.toString() != "" && edVietnam.text.toString() != "")
+            {
+                word_object.language1 =tvEnglish.text.toString()
+                word_object.content_language1 = edEnglish.text.toString()
+                word_object.language2 = tvVietnamese.text.toString()
+                word_object.content_language2 = edVietnam.text.toString()
+
+                dao.insert(word_object)
+
+                // Word is not exist & different with default value
+            }
+
+
+
+
         }
+
         translate.setOnClickListener{
             var position1 = s2.selectedItemPosition
             var position2 = s1.selectedItemPosition
             s1.setSelection(position1)
             s2.setSelection(position2)
         }
+
         btTranslate.setOnClickListener {
             var language1 :String= when( s1.selectedItem.toString()){
                 "English" -> "en"
@@ -94,23 +108,41 @@ class MainActivity : AppCompatActivity() {
         Save_screen.setOnClickListener{
             val intent = Intent(this@MainActivity, SaveActivity::class.java)
 
-//            if(edEnglish.text.toString() != "" && edVietnam.text.toString() != "")
-//            {
-//                val word = Word(null, edEnglish.text.toString(),edVietnam.text.toString())
-//                intent.putExtra(WORD_KEY, word)
-//            }
-//            else
-//            {
-//                val word= Word()
-//                intent.putExtra(WORD_KEY, word)
-//            }
             startActivity(intent)
         }
-
 
         camera.setOnClickListener{ goToCamera() }
 
     }
+
+    private fun wordAvailable(word: Word): Boolean {
+        getWords()
+        val size = words.size
+
+        // Check item available
+        if (size == 0)
+        {
+            return false
+        }
+
+        for (i in 0 until size)
+        {
+            if(words[i].content_language1 == word.content_language1 && words[i].content_language2 == word.content_language2)
+            {
+                return true
+            }
+        }
+
+        // List does not contain item
+        return false
+    }
+
+    private fun getWords() {
+        this.words.clear()
+        val words = dao.getAll()
+        this.words.addAll(words)
+    }
+
     private fun goToCamera(){
         val intent = Intent(this, CamActivity::class.java)
         startActivity(intent)

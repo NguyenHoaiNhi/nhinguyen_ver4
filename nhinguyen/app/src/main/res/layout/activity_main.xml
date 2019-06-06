@@ -41,7 +41,6 @@
     </RelativeLayout>
 
     <RelativeLayout
-
             android:background="@drawable/backgroung1"
             android:layout_width="match_parent"
             android:layout_height="170dp" android:layout_marginTop="1dp"
@@ -65,6 +64,16 @@
                 android:id="@+id/edEnglish"
                 android:layout_below="@id/tvEnglish"
                 android:layout_marginTop="2dp"/>
+
+        <ImageButton
+                android:id="@+id/ibMuteEN"
+                android:background="@drawable/backgroung1"
+                android:src="@drawable/mute"
+                android:layout_marginLeft="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="63dp"/>
 
 
     </RelativeLayout>
@@ -153,14 +162,14 @@
                 android:layout_marginLeft="10dp" android:layout_marginTop="10dp"/>
 
         <ImageView android:id="@+id/save"
-                   android:layout_width="25dp"
-                   android:layout_height="26dp"
+                   android:layout_width="30dp"
+                   android:layout_height="31dp"
                    android:src="@drawable/save"
 
                    android:layout_toRightOf="@id/tvVietnamese"
                    android:layout_marginTop="5dp"
                    android:layout_marginBottom="5dp"
-                   android:layout_marginLeft="170dp"/>
+                   android:layout_marginLeft="174dp"/>
 
         <TextView
 
@@ -171,7 +180,16 @@
                 android:layout_below="@id/tvVietnamese"
                 android:layout_marginTop="1dp" android:layout_marginLeft="3dp" android:layout_marginRight="3dp"/>
 
-
+        <ImageButton
+                android:id="@+id/ibMuteVN"
+                android:background="@drawable/backgroung1"
+                android:src="@drawable/mute"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_alignParentLeft="true"/>
     </RelativeLayout>
 
 
