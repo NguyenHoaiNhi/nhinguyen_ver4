@@ -55,14 +55,20 @@ class MainActivity : AppCompatActivity() {
                 word_object.language2 = tvVietnamese.text.toString()
                 word_object.content_language2 = edVietnam.text.toString()
 
-                dao.insert(word_object)
+                // Default value
+                val temp = Word()
 
                 // Word is not exist & different with default value
+                if((word_object != temp) && (wordAvailable(word_object) == false))
+                {
+                    dao.insert(word_object)
+                    Toast.makeText(this@MainActivity, "Saved!", Toast.LENGTH_SHORT).show()
+                }
+                else
+                {
+                    Toast.makeText(this@MainActivity, "This word was available!", Toast.LENGTH_SHORT).show()
+                }
             }
-
-
-
-
         }
 
         translate.setOnClickListener{
