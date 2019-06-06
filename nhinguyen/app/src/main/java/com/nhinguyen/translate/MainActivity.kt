@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var s2: Spinner
     val spinnerData = ArrayList<String>()
 
-     var mTTS : TextToSpeech? = null
+     var mTextToSpeech : TextToSpeech? = null
 
     private lateinit var mHandler: Handler
 
@@ -127,10 +127,20 @@ class MainActivity : AppCompatActivity() {
 
         camera.setOnClickListener{ goToCamera() }
 
-        mTTS = TextToSpeech(this@MainActivity, OnInitListener(function = fun(it: Int) {
+        val locale = Locale("vi")
+        Locale.setDefault(locale)
+        val config = baseContext.resources.configuration
+        config.locale = locale
+        baseContext.resources.updateConfiguration(
+            config,
+            baseContext.resources.displayMetrics
+        )
+
+        mTextToSpeech = TextToSpeech(this@MainActivity,
+            OnInitListener(function = fun(it: Int) {
             if(it == TextToSpeech.SUCCESS)
             {
-                val result = mTTS!!.setLanguage(Locale.ENGLISH)
+                val result = mTextToSpeech!!.setLanguage(locale)
 
                 if(result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED)
                 {
@@ -146,15 +156,13 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this@MainActivity, "Initialization failed", Toast.LENGTH_SHORT).show()
             }
 
-        }))
+        })
+        )
 
         ibMuteEN.setOnClickListener {
             val str  = edEnglish.text.toString()
 
-//            mTTS!!.setSpeechRate(100f)
-//            mTTS!!.setPitch(10f)
-
-            mTTS!!.speak(str, TextToSpeech.QUEUE_FLUSH,null)
+            mTextToSpeech!!.speak(str, TextToSpeech.QUEUE_FLUSH,null)
         }
 
         ibMuteVN.setOnClickListener {
@@ -166,10 +174,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
 
-        if (mTTS != null)
+        if (mTextToSpeech != null)
         {
-            mTTS!!.stop()
-            mTTS!!.shutdown()
+            mTextToSpeech!!.stop()
+            mTextToSpeech!!.shutdown()
         }
         super.onDestroy()
     }
